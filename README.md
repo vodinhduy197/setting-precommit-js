@@ -7,7 +7,7 @@
 *    "[JIRA-123]feat: create login page"
 *    "[TEST-123][BUG-321]fix: fix bug 321"
 * Type Commit:
-*  ✨feat: Adding a new feature
+*  ✨ feat: Adding a new feature
 *  🐛 fix: Fixing a bug
 *  💄 style: Add or update styles, ui or ux
 *  🔨 refactor: Code change that neither fixes a bug nor adds a feature
@@ -93,4 +93,5 @@ module.exports = Configuration;
 git commit -m "test" ==> fail
 git commit -m "[JIRA-123]feat: create login page"  ==> pass
 git commit -m "[TEST-123][BUG-321]fix: fix bug 321" ===> pass
+git commit -m "yolo!!" --no-verify ===> pass
 ```
