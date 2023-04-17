@@ -10,6 +10,7 @@ const getPriceFromString = (priceS) => {
 const getDataCommon = async (url, option) => {
   const browser = await puppeteer.launch({
     headless: true, //open browser
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
   });
   const page = await browser.newPage();
   const viewPort = { width: 1280, height: 720 };
