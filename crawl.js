@@ -10,7 +10,7 @@ const getPriceFromString = (priceS) => {
 const getDataCommon = async (url, option) => {
   const browser = await puppeteer.launch({
     headless: true, //open browser
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
   const page = await browser.newPage();
   const viewPort = { width: 1280, height: 720 };
@@ -32,11 +32,19 @@ const getDataCommon = async (url, option) => {
   // page.on("console", (message) => {
   //   console.log(message.text());
   // });
-
-  const menus = await page.evaluate(async () => {
-    const option = await window.getSelector();
+  const menus = await page.evaluate(autoScrollGetMenu);
+  await browser.close();
+  const menusDistinct = [
+    ...new Map(menus.map((item) => [item["title"], item])).values(),
+  ];
+  
+  return menusDistinct;
+};
+const autoScrollGetMenu = async () => {
+  const getMenus = async () => {
+    option = await window.getSelector();
     let menuItems = document.querySelectorAll(option.menuSelector);
-    let menus = [];
+    const menus = [];
     for (const item of menuItems) {
       const title$ = item.querySelector(option.itemTitleSelector);
       const price$ = item.querySelector(option.itemDiscountPriceSelector);
@@ -53,15 +61,31 @@ const getDataCommon = async (url, option) => {
         });
       }
     }
-
     return menus;
-  });
-  await browser.close();
-  const menusDistinct = [
-    ...new Map(menus.map((item) => [item["title"], item])).values(),
-  ];
-  return menusDistinct;
+  };
+
+  const autoScroll = () => new Promise(async (resolve) => {
+    let menus = [];
+    let totalHeight = 0;
+    const distance = window.innerHeight / 3;
+    const timer = setInterval(async () => {
+      const scrollHeight = document.body.scrollHeight;
+      window.scrollBy(0, distance);
+
+      const menuTmp = await getMenus();
+      menus = [...menus, ...menuTmp];
+      totalHeight += distance;
+
+      if (totalHeight >= scrollHeight - window.innerHeight) {
+        clearInterval(timer);
+        resolve(menus);
+      }
+    }, 100);
+  })
+
+  return await autoScroll();
 };
+
 const getDataGrab = async (url) => {
   const menuSelector = '[class*="menuItem___"]';
   const itemTitleSelector = '[class*="itemNameTitle___"]';
